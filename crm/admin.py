@@ -8,28 +8,6 @@ from crm.models import TestScore, Test, RTGroup, TippingGroup, TippingStudent
 from crm.models import Tip, Attendance, PresidentialRequirements, Fitness
 from crm.models import Tuition
 
-#admin.site.register(Student)
-#admin.site.register(Rank)
-#admin.site.register(InstructorGroup)
-#admin.site.register(Contact)
-#admin.site.register(ContactPhone)
-#admin.site.register(ContactEmail)
-#admin.site.register(StudentPhone)
-#admin.site.register(StudentEmail)
-#admin.site.register(Relationship)
-#admin.site.register(TestGroup)
-#admin.site.register(Test)
-#admin.site.register(TestScore)
-#admin.site.register(RTGroup)
-#admin.site.register(TippingGroup)
-#admin.site.register(TippingStudent)
-#admin.site.register(Tip)
-#admin.site.register(Attendance)
-#admin.site.register(AAUGroup)
-#admin.site.register(Session)
-#admin.site.register(SessionMember)
-#admin.site.register(SessionAttendance)
-
 class ContactInline(admin.StackedInline):
     model = Contact
     extra = 1
@@ -42,11 +20,6 @@ class ContactPhoneInline(admin.TabularInline):
     model = ContactPhone
     extra = 1
 
-
-#class StudentInline(admin.StackedInline):
-#    model = Student
-#    extra = 0
-
 class StudentEmailInline(admin.TabularInline):
     model = StudentEmail
     extra = 1
@@ -57,6 +30,10 @@ class StudentPhoneInline(admin.TabularInline):
 
 class TestInline(admin.TabularInline):
     model = Test
+    extra = 1
+
+class TestScoreInline(admin.TabularInline):
+    model = TestScore
     extra = 1
 
 class TippingInline(admin.TabularInline):
@@ -91,20 +68,29 @@ class ContactAdmin(admin.ModelAdmin):
             ]
 
 
-class TestAdmin(admin.ModelAdmin):
+class TestGroupAdmin(admin.ModelAdmin):
     inlines = [TestInline]
+
+class TestAdmin(admin.ModelAdmin):
+    inlines = [TestScoreInline]
 
 class TippingAdmin(admin.ModelAdmin):
     inlines = [TippingInline]
 
 class SessionAdmin(admin.ModelAdmin):
     inlines = [SessionMemberInline]
+
+class TippingStudentAdmin(admin.ModelAdmin):
+    inlines = [TipInline]
 #class RelationshipAdmin(admin.ModelAdmin):
 #    inlines = [StudentInline, ContactInline]
 
 #admin.site.register(Relationship, RelationshipAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Contact, ContactAdmin)        
-admin.site.register(TestGroup, TestAdmin)
+admin.site.register(TestGroup, TestGroupAdmin)
+admin.site.register(Test, TestAdmin)
 admin.site.register(TippingGroup, TippingAdmin)
 admin.site.register(Session, SessionAdmin)
+admin.site.register(InstructorGroup)
+admin.site.register(TippingStudent, TippingStudentAdmin)
