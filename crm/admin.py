@@ -52,12 +52,36 @@ class SessionMemberInline(admin.TabularInline):
     model = SessionMember
     extra = 1
 
+class TuitionInline(admin.TabularInline):
+    model = Tuition
+    extra = 1
+
+class AttendanceInline(admin.TabularInline):
+    model = Attendance
+    extra = 1
+
+class HoldHarmlessInline(admin.TabularInline):
+    model = HoldHarmlessStudent
+    extra = 1
+
+class FitnessInline(admin.TabularInline):
+    model = Fitness
+    extra = 1
+
+class SessionAttendanceInline(admin.TabularInline):
+    model = SessionAttendance
+    extra = 1
+
 class StudentAdmin(admin.ModelAdmin):
     inlines = [StudentEmailInline,
                StudentPhoneInline,
                RelationshipInline,
                TestInline,TippingInline,
                SessionMemberInline,
+               #TuitionInline,
+               AttendanceInline,
+               HoldHarmlessInline,
+               FitnessInline
                ]
 
 
@@ -82,6 +106,12 @@ class SessionAdmin(admin.ModelAdmin):
 
 class TippingStudentAdmin(admin.ModelAdmin):
     inlines = [TipInline]
+
+class HoldHarmlessAdmin(admin.ModelAdmin):
+    inlines = [HoldHarmlessInline]
+
+class SessionAttendanceAdmin(admin.ModelAdmin):
+    inlines = [SessionAttendanceInline]
 #class RelationshipAdmin(admin.ModelAdmin):
 #    inlines = [StudentInline, ContactInline]
 
@@ -94,3 +124,11 @@ admin.site.register(TippingGroup, TippingAdmin)
 admin.site.register(Session, SessionAdmin)
 admin.site.register(InstructorGroup)
 admin.site.register(TippingStudent, TippingStudentAdmin)
+admin.site.register(RTGroup)
+admin.site.register(BBCGroup)
+admin.site.register(MCGroup)
+admin.site.register(HoldHarmless, HoldHarmlessAdmin)
+admin.site.register(PresidentialRequirements)
+admin.site.register(SessionMember, SessionAttendanceAdmin)
+admin.site.register(AAUGroup)
+admin.site.register(LeadershipGroup)
