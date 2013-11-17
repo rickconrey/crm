@@ -12,7 +12,7 @@ class CommonInfo(models.Model):
     state = models.CharField(max_length=50, default="California", 
                              blank=True)
     zipcode = models.IntegerField(default=95037,
-                                  blank=True)
+                                  blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -51,18 +51,19 @@ class Student(CommonInfo):
     dob = models.DateField('Date of Birth')                                   #
     start_date = models.DateField('Start Date', default=date.today())
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES,
-                              blank=True)
+                              blank=True, null=True)
     uniform_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
                                     default=0, blank=True)
     belt_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
                                  default=0, blank=True)
     status = models.ForeignKey('Status', default='INT')
-    class_time = models.ForeignKey('Class', null=True)
+    class_time = models.ForeignKey('Class', null=True, blank=True)
     # group = models.ManyToManyField(Group, through='') # change?
     contacts = models.ManyToManyField('Contact', through='Relationship',
                                       null=True)
     rank = models.ForeignKey('Rank', to_field='rank', 
-                             default='WB', null=True)
+                             default='WB', null=True, blank=True,
+                             verbose_name="Current Rank")
     anniv_month = models.IntegerField(choices=ANNIV_MONTH_CHOICES,
                                       default=date.today().month,
                                       blank=True)
@@ -70,7 +71,7 @@ class Student(CommonInfo):
     limitations = models.TextField(blank=True)
     referral = models.ForeignKey('Student', blank=True, null=True)
     # hold_harmless = models.BooleanField(default=False)
-    total_years = models.IntegerField(default=0, blank=True)
+    total_years = models.IntegerField(default=0, blank=True, null=True)
 
     def get_age(self):
         today = date.today()
@@ -157,9 +158,9 @@ class Email(models.Model):
         (OTHER, 'Other'),
     )
     email = models.EmailField(max_length=254)
-    email_type = models.CharField(max_length=1, 
-                                  choices=EMAIL_TYPE_CHIOCES, 
-                                  default=PRIMARY)
+    #email_type = models.CharField(max_length=1, 
+    #                              choices=EMAIL_TYPE_CHIOCES, 
+    #                              default=PRIMARY)
 
     class Meta:
         abstract = True
@@ -192,10 +193,10 @@ class Phone(models.Model):
         (CELL, 'Cell'),
         (OTHER, 'Other'),
     )
-    phone = models.CharField(max_length=12)
+    phone = models.CharField(max_length=14)
     phone_type = models.CharField(max_length=1, 
                                   choices=PHONE_TYPE_CHOICES, 
-                                  default=PRIMARY)
+                                  default=CELL)
 
     class Meta:
         abstract = True
@@ -218,6 +219,12 @@ class ContactPhone(Phone):
 # sparring, ground fighting, and any future
 class HoldHarmless(models.Model):
     name = models.CharField(max_length=150)
+
+    class Meta:
+        verbose_name_plural = "Hold Harmless"
+
+    def __unicode__(self):
+        return self.name
     
 class HoldHarmlessStudent(models.Model):
     hold_harmless = models.ForeignKey(HoldHarmless)
@@ -282,19 +289,19 @@ class Group(models.Model):
 class GroupJoin(models.Model):
     student = models.ForeignKey(Student)
     join_date = models.DateField(default=date.today())
-    # group_name = models.ForeignKey(Group)
+    group_name = models.ForeignKey(Group)
     receive_email = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
 
 class BBCGroup(GroupJoin):
-    goals = models.TextField()
+    goals = models.TextField(blank=True)
     black_belt_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
 class MCGroup(GroupJoin):
-    goals = models.TextField()
+    goals = models.TextField(blank=True)
     advanced_degree_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
@@ -505,7 +512,8 @@ class Test(models.Model):
     student = models.ForeignKey(Student)
     instructor = models.ForeignKey(InstructorGroup)
     test_group = models.ForeignKey(TestGroup)
-    test_rank = models.ForeignKey(Rank) 
+    test_rank = models.ForeignKey(Rank,
+                                  verbose_name="Testing For") 
     passed = models.BooleanField(default=False)
     # notes = models.TextField() -- do i need this if it is included in score?
     average = models.DecimalField(max_digits=4,decimal_places=2)
@@ -518,7 +526,8 @@ class TestScore(models.Model):
 
 class RTGroup(models.Model):
     test_score = models.ForeignKey(TestScore)
-    instructor = models.ForeignKey(InstructorGroup, null=True)
+    instructor = models.ForeignKey(InstructorGroup, null=True,blank=True,
+                                   verbose_name="Sign Off Instructor")
     sign_off = models.BooleanField(default=False)
     sign_off_date = models.DateField(null=True,
                                      blank=True)
@@ -582,6 +591,9 @@ class Attendance(models.Model):
     attendance_date = models.DateField(default=date.today())
     student = models.ForeignKey(Student)
 
+    class Meta:
+        verbose_name_plural = "Attendance"
+
     def __unicode__(self):
         return self.student.first_name + ' ' + self.student.last_name + ' - ' + \
                 self.attendance_type + ' - ' + \
@@ -598,31 +610,41 @@ class PresidentialRequirements(models.Model):
     pushups = models.IntegerField()
     situps = models.IntegerField()
     mile_time = models.IntegerField()
-    bike_time = models.IntegerField(blank=True)
+    bike_time = models.IntegerField(blank=True,null=True)
+
+    class Meta:
+        verbose_name = "Presidential Fitness Requirements"
+        verbose_name_plural = "Presidential Fitness Requirements"
 
 class Fitness(models.Model):
     student = models.ForeignKey(Student)
     weight = models.DecimalField(max_digits=5, decimal_places=2,
-                                 blank=True)
-    pushups = models.IntegerField(blank=True)
-    situps = models.IntegerField(blank=True)
-    mile_time = models.IntegerField(blank=True) # need to translate this to MM:SS format
-    bike_time = models.IntegerField(blank=True) # need to translate this to MM:SS format
+                                 blank=True, null=True)
+    pushups = models.IntegerField(blank=True, null=True)
+    situps = models.IntegerField(blank=True, null=True)
+    mile_time = models.IntegerField(blank=True, null=True) # need to translate this to MM:SS format
+    bike_time = models.IntegerField(blank=True, null=True) # need to translate this to MM:SS format
     pushup_percent = models.DecimalField(max_digits=5, decimal_places=2,
-                                         blank=True)
+                                         blank=True, null=True)
     situps_percent = models.DecimalField(max_digits=5, decimal_places=2,
-                                         blank=True)
+                                         blank=True, null=True)
     mile_percent = models.DecimalField(max_digits=5, decimal_places=2,
-                                       blank=True)
+                                       blank=True, null=True)
     bike_percent = models.DecimalField(max_digits=5, decimal_places=2,
-                                       blank=True)
-    bodyfat = models.IntegerField(blank=True) # only show up if over 18
-    date = models.DateField(auto_now_add=True)
-    test = models.ForeignKey(Test, null=True)
+                                       blank=True, null=True)
+    bodyfat = models.IntegerField(blank=True, null=True) # only show up if over 18
+    date = models.DateField(auto_now_add=True, null=True, blank=True)
+    test = models.ForeignKey(Test, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "Fitness"
 
 # Billing #
 class Tuition(models.Model):
+    student = models.ForeignKey(Student)
     bill_name = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     paid = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = "Tuition"
