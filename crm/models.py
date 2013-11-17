@@ -300,14 +300,26 @@ class BBCGroup(GroupJoin):
     black_belt_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
+    class Meta:
+        verbose_name = "BBC Group"
+        verbose_name_plural = "BBC Groups"
+
 class MCGroup(GroupJoin):
     goals = models.TextField(blank=True)
     advanced_degree_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
+    class Meta:
+        verbose_name = "MC Group"
+        verbose_name_plural = "MC Groups"
+
 class AAUGroup(GroupJoin):
     aau_rank = models.ForeignKey('AAURank')
     aau_group = models.DateField()
+
+    class Meta:
+        verbose_name = "AAU Group"
+        verbose_name_plural = "AAU Groups"
 
 class InstructorGroup(GroupJoin):
     INSTRUCTOR_RANK_CHOICES = (
