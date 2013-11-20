@@ -6,7 +6,7 @@ from crm.models import SessionMember, SessionAttendance, BBCGroup, MCGroup
 from crm.models import AAUGroup, InstructorGroup, LeadershipGroup, TestGroup
 from crm.models import TestScore, Test, RTGroup, TippingGroup, TippingStudent
 from crm.models import Tip, Attendance, PresidentialRequirements, Fitness
-from crm.models import Tuition
+from crm.models import Tuition, StatusStudent
 
 class ContactInline(admin.StackedInline):
     model = Contact
@@ -72,8 +72,13 @@ class SessionAttendanceInline(admin.TabularInline):
     model = SessionAttendance
     extra = 1
 
+class StatusStudentInline(admin.TabularInline):
+    model = StatusStudent
+    extra = 1
+
 class StudentAdmin(admin.ModelAdmin):
-    inlines = [StudentEmailInline,
+    inlines = [StatusStudentInline,
+               StudentEmailInline,
                StudentPhoneInline,
                RelationshipInline,
                TestInline,TippingInline,

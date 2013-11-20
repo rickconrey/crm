@@ -1,3 +1,126 @@
-{% if student %}
-    {{ student }}
-{% endif %}
+{% extends "base.html" %}
+
+{% block script %}
+body {
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+{% endblock %}
+
+{% block title %}{{ student }}{% endblock %}
+
+{% block body %}
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse"
+data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">UAMA</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right">
+            <div class="form-group">
+              <input type="text" placeholder="Email" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password"
+class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <p></p>
+      </div>
+    </div>
+
+<div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Student Information</h3>
+          <div class="panel panel-default">
+            <div class="panel-heading">{{ student }}</div>
+          <table class="table">
+            <tr>
+              <td>Date of Birth:</td>
+              <td>{{ student.dob }}</td>
+            </tr>
+            <tr>
+              <td>Age:</td>
+              <td>{{ age }}</td>
+            </tr>
+            <tr>
+              <td>Gender:</td>
+              <td>{{ student.gender }}</td>
+            </tr>
+            <tr>
+              <td>Status:</td>
+              <td>{{ student.status }}</td>
+            </tr>
+          </table>
+          </div>
+          <p><a class="btn btn-default" href="#" role="button">edit
+&raquo;</a></p>
+        </div>
+        <div class="col-md-6">
+          <h3>Martial Arts History</h3>
+          <div class="panel panel-default">
+          <table class="table">
+            <tr>
+              <td>Start Date:</td>
+              <td>{{ student.start_date }}</td>
+            </tr>
+            <tr>
+              <td>Anniversary Month:</td>
+              <td>{{ student.anniv_month }}</td>
+            </tr>
+            <tr>
+              <td>Total Years:</td>
+              <td>{{ student.total_years }}</td>
+            </tr>
+            <tr>
+              <td>Rank:</td>
+              <td>{{ student.rank }}</td>
+            </tr>
+            <tr>
+              <td>Next Test Date:</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Class:</td>
+              <td>{{ student.class_time }}</td>
+            </tr>
+            <tr>
+              <td>Uniform Size:</td>
+              <td>{{ student.uniform_size }}</td>
+            </tr>
+            <tr>
+              <td>Belt Size:</td>
+              <td>{{ student.belt_size }}</td>
+            </tr>
+          </table>
+          </div>
+          <p><a class="btn btn-default" href="#" role="button">edit
+&raquo;</a></p>
+       </div>
+        <div class="col-md-6">
+          <h3>Contact Information</h3>
+          
+          <p>{{ student.contacts.0 }}</p>
+          <p><a class="btn btn-default" href="#" role="button">edit
+&raquo;</a></p>
+        </div>
+      </div>
+{% endblock %}

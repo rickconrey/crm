@@ -170,14 +170,14 @@ class StudentEmail(Email):
 
     def __unicode__(self):
         return self.student.first_name + ' ' + self.student.last_name + \
-                ' - ' + self.email + ' ' + self.email_type
+                ' - ' + self.email
 
 class ContactEmail(Email):
     contact = models.ForeignKey(Contact)
 
     def __unicode__(self):
         return self.contact.first_name + ' ' + self.contact.last_name + \
-                ' - ' + self.email + ' ' + self.email_type
+                ' - ' + self.email
 
 # Phone models #
 class Phone(models.Model):
@@ -289,7 +289,7 @@ class Group(models.Model):
 class GroupJoin(models.Model):
     student = models.ForeignKey(Student)
     join_date = models.DateField(default=date.today())
-    group_name = models.ForeignKey(Group)
+    #group_name = models.ForeignKey(Group)
     receive_email = models.BooleanField(default=True)
 
     class Meta:
@@ -373,14 +373,28 @@ class Status(models.Model):
     def __unicode__(self):
         return self.status
 
-# is this part of status? 
-class SpecialProgram(models.Model):
+    class Meta:
+        verbose_name_plural = 'Status'
+
+class StatusStudent(models.Model):
     student = models.ForeignKey(Student)
+    status = models.ForeignKey(Status)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     rate = models.DecimalField(max_digits=8, decimal_places=2,
                                null=True, blank=True)
-    program_name = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name_plural = "Student Status"
+
+# is this part of status? 
+#class SpecialProgram(models.Model):
+#    student = models.ForeignKey(Student)
+#    start_date = models.DateField()
+#    end_date = models.DateField(null=True, blank=True)
+#    rate = models.DecimalField(max_digits=8, decimal_places=2,
+#                               null=True, blank=True)
+#    program_name = models.CharField(max_length=50)
 
 # Class #
 class Class(models.Model):
