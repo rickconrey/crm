@@ -1,0 +1,41 @@
+<div class="col-md-4">
+  <h3>Martial Arts History</h3>
+  <div class="panel panel-default">
+    <table class="table">
+      <tr>
+        <td>Start Date:</td>
+        <td>{{ student.start_date }}</td>
+      </tr>
+      <tr>
+        <td>Anniversary Month:</td>
+        <td>{{ student.get_anniv_month_display }}</td>
+      </tr>
+      <tr>
+        <td>Total Years:</td>
+        <td>{{ student.total_years }}</td>
+      </tr>
+      <tr>
+        <td>Rank:</td>
+        <td>{{ student.rank }}</td>
+      </tr>
+      <tr>
+        <td>Next Test Date:</td>
+        <td>{{ next_test_date.test_group.test_date }}</td>
+      </tr>
+      <tr>
+        <td>Class:</td>
+        <td>{{ student.class_time }}</td>
+      </tr>
+      <tr>
+        <td>Uniform Size:</td>
+        <td>{{ student.uniform_size }}</td>
+      </tr>
+      <tr>
+        <td>Belt Size:</td>
+        <td>{{ student.belt_size }}</td>
+      </tr>
+    </table>
+  </div>
+  <p><a class="btn btn-default" href="#" role="button">edit &raquo;</a></p>
+</div>
+

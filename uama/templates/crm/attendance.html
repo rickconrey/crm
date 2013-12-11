@@ -1,0 +1,22 @@
+
+<div class="col-md-3">
+  <h3>Attendance</h3>
+  <div class="panel panel-default">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in attendance %}
+          <tr>
+            <td>{{ a.get_attendance_type_display }}</td>
+            <td>{{ a.attendance_date }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
