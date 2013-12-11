@@ -6,7 +6,7 @@ from crm.models import SessionMember, SessionAttendance, BBCGroup, MCGroup
 from crm.models import AAUGroup, InstructorGroup, LeadershipGroup, TestGroup
 from crm.models import TestScore, Test, RTGroup, TippingGroup, TippingStudent
 from crm.models import Tip, Attendance, PresidentialRequirements, Fitness
-from crm.models import Tuition, StatusStudent
+from crm.models import Tuition, StatusStudent, GroupCategory
 
 class ContactInline(admin.StackedInline):
     model = Contact
@@ -75,6 +75,9 @@ class SessionAttendanceInline(admin.TabularInline):
 class StatusStudentInline(admin.TabularInline):
     model = StatusStudent
     extra = 1
+class GroupInline(admin.TabularInline):
+    model = Group
+    extra = 1
 
 class StudentAdmin(admin.ModelAdmin):
     inlines = [StatusStudentInline,
@@ -120,20 +123,82 @@ class SessionAttendanceAdmin(admin.ModelAdmin):
 #class RelationshipAdmin(admin.ModelAdmin):
 #    inlines = [StudentInline, ContactInline]
 
+class GroupAdmin(admin.ModelAdmin):
+    inlines = [GroupInline]
+
+class BBCAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        idx_group_category = GroupCategory.objects.filter(
+                        group_category='Black Belt Club')
+        if db_field.name == 'group':
+            kwargs['queryset'] = Group.objects.filter(
+                        group_category=idx_group_category)
+        if db_field.name == 'group_category':
+            kwargs['queryset'] = idx_group_category
+
+        return super(BBCAdmin, self).formfield_for_foreignkey(db_field,
+                                                              request,
+                                                              **kwargs)
+
+class InstructorsAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        idx_group_category = GroupCategory.objects.filter(
+                        group_category='Instructors')
+        if db_field.name == 'group':
+            kwargs['queryset'] = Group.objects.filter(
+                        group_category=idx_group_category)
+        if db_field.name == 'group_category':
+            kwargs['queryset'] = idx_group_category
+
+        return super(InstructorsAdmin, self).formfield_for_foreignkey(db_field,
+                                                                      request,
+                                                                      **kwargs)
+
+class LeadershipAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        idx_group_category = GroupCategory.objects.filter(
+                        group_category='Leadership')
+        if db_field.name == 'group':
+            kwargs['queryset'] = Group.objects.filter(
+                        group_category=idx_group_category)
+        if db_field.name == 'group_category':
+            kwargs['queryset'] = idx_group_category
+
+        return super(LeadershipAdmin, self).formfield_for_foreignkey(db_field,
+                                                                     request,
+                                                                     **kwargs)
+
+class MCAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        idx_group_category = GroupCategory.objects.filter(
+                        group_category='Master\'s Club')
+        if db_field.name == 'group':
+            kwargs['queryset'] = Group.objects.filter(
+                        group_category=idx_group_category)
+        if db_field.name == 'group_category':
+            kwargs['queryset'] = idx_group_category
+
+        return super(MCAdmin, self).formfield_for_foreignkey(db_field,
+                                                             request,
+                                                             **kwargs)
+
+
+
 #admin.site.register(Relationship, RelationshipAdmin)
+admin.site.register(GroupCategory, GroupAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Contact, ContactAdmin)        
 admin.site.register(TestGroup, TestGroupAdmin)
 admin.site.register(Test, TestAdmin)
 admin.site.register(TippingGroup, TippingAdmin)
 admin.site.register(Session, SessionAdmin)
-admin.site.register(InstructorGroup)
+admin.site.register(InstructorGroup, InstructorsAdmin)
 admin.site.register(TippingStudent, TippingStudentAdmin)
 admin.site.register(RTGroup)
-admin.site.register(BBCGroup)
-admin.site.register(MCGroup)
+admin.site.register(BBCGroup, BBCAdmin)
+admin.site.register(MCGroup, MCAdmin)
 admin.site.register(HoldHarmless, HoldHarmlessAdmin)
 admin.site.register(PresidentialRequirements)
 admin.site.register(SessionMember, SessionAttendanceAdmin)
 admin.site.register(AAUGroup)
-admin.site.register(LeadershipGroup)
+admin.site.register(LeadershipGroup, LeadershipAdmin)

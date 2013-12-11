@@ -56,7 +56,7 @@ class Student(CommonInfo):
                                     default=0, blank=True)
     belt_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
                                  default=0, blank=True)
-    status = models.ForeignKey('Status', default='INT')
+    #status = models.ForeignKey('Status', default='INT')
     class_time = models.ForeignKey('Class', null=True, blank=True)
     # group = models.ManyToManyField(Group, through='') # change?
     contacts = models.ManyToManyField('Contact', through='Relationship',
@@ -264,6 +264,16 @@ class SessionAttendance(models.Model):
                 self.date.strftime('%B %d, %Y')
 
 # Group #
+class GroupCategory(models.Model):
+    group_category = models.CharField(max_length=100,
+                                      unique=True)
+
+    def __unicode__(self):
+        return self.group_category
+
+    class Meta:
+        verbose_name = "Group Category"
+        verbose_name_plural = "Group Categories"
 class Group(models.Model):
     GROUP_CHOICES = (
         ('STF', 'Staff'),
@@ -273,23 +283,17 @@ class Group(models.Model):
         ('LDS', 'Leadership'),
         ('AAU', 'AAU'),
     )
-    #group = models.CharField(max_length=3, choices=GROUP_CHOICES,
-    #                         unique=True)
-    group = models.CharField(max_length=30,
-                             unique=True)
-
-    #TODO: On save, create one of the Groups from choices
-    # it might have to be under Student
-    def save(self):
-        pass
+    group = models.CharField(max_length=100)
+    group_category = models.ForeignKey(GroupCategory)
 
     def __unicode__(self):
         return self.group
 
 class GroupJoin(models.Model):
+    group_category = models.ForeignKey(GroupCategory)
+    group = models.ForeignKey(Group)
     student = models.ForeignKey(Student)
     join_date = models.DateField(default=date.today())
-    #group_name = models.ForeignKey(Group)
     receive_email = models.BooleanField(default=True)
 
     class Meta:
@@ -383,9 +387,12 @@ class StatusStudent(models.Model):
     end_date = models.DateField(null=True, blank=True)
     rate = models.DecimalField(max_digits=8, decimal_places=2,
                                null=True, blank=True)
+    def __unicode__(self):
+        return self.status.status
 
     class Meta:
         verbose_name_plural = "Student Status"
+    
 
 # is this part of status? 
 #class SpecialProgram(models.Model):
@@ -536,13 +543,14 @@ class TestGroup(models.Model):
 
 class Test(models.Model):
     student = models.ForeignKey(Student)
-    instructor = models.ForeignKey(InstructorGroup)
+    instructor = models.ForeignKey(InstructorGroup, null=True, blank=True)
     test_group = models.ForeignKey(TestGroup)
     test_rank = models.ForeignKey(Rank,
                                   verbose_name="Testing For") 
     passed = models.BooleanField(default=False)
     # notes = models.TextField() -- do i need this if it is included in score?
-    average = models.DecimalField(max_digits=4,decimal_places=2)
+    average = models.DecimalField(max_digits=4,decimal_places=2,
+                                  blank=True, null=True)
 
 class TestScore(models.Model):
     test = models.ForeignKey(Test)
@@ -557,6 +565,10 @@ class RTGroup(models.Model):
     sign_off = models.BooleanField(default=False)
     sign_off_date = models.DateField(null=True,
                                      blank=True)
+
+    class Meta:
+        verbose_name = "RT Group"
+        verbose_name_plural = "RT Groups"
 
 class TippingGroup(models.Model):
     description = models.CharField(max_length=200)
