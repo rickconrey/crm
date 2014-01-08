@@ -41,7 +41,15 @@ body {
 <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <p></p>
+        <p>
+          {% if student_page.has_previous %}
+            <a href="../{{ student_page.previous_page_number }}">previous</a>
+          {% endif %}
+          Page {{ student_page.number }} of {{ student_page.paginator.num_pages }}.
+          {% if student_page.has_next %}
+            <a href="../{{ student_page.next_page_number }}">next</a>
+          {% endif %}
+        </p>
       </div>
     </div>
 
