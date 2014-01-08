@@ -63,16 +63,16 @@
         </tr>
       </table>
     </div>
-  {% endfor %}
   <!--<p><a class="btn btn-default" href="#" role="button">edit
 &raquo;</a></p>-->
- <p>
-    <a data-target="#contactEdit"
-       class="btn btn-default"
-       href="/crm/contactup/1"
-       role="button"
-       data-toggle="modal">edit &raquo;</a>
-  </p>
+   <p>
+      <a data-target="#contactEdit"
+         class="btn btn-default"
+         href="/crm/contactup/{{ contact.contact.id }}"
+         role="button"
+         data-toggle="modal">edit &raquo;</a>
+    </p>
+  {% endfor %}
 </div>
 <div class="modal fade" id="contactEdit"
      tabindex="-1" role="dialog" aria-hidden="true">
