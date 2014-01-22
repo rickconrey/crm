@@ -1,0 +1,42 @@
+
+<div class="col-md-3">
+  <h3>Groups</h3>
+  <div class="panel panel-default">
+    <table class="table table-striped">
+        <tbody>
+          {% if groups.AAU %}
+          <tr>
+              <td>AAU</td>
+              <td>{{ groups.AAU.0 }}</td>
+          </tr>
+          {% endif %}
+          {% if groups.BBC %}
+          <tr>
+              <td>BBC</td>
+              <td> 
+                  {{ groups.BBC.0.group }}
+              </td>
+          </tr>
+          {% endif %}
+          {% if groups.MC %}
+          <tr>
+              <td>MC</td>
+              <td>{{ groups.MC.0.group }}</td>
+          </tr>
+          {% endif %}
+          {% if groups.Instructor %}
+          <tr>
+              <td>Instructor</td>
+              <td>{{ groups.Instructor.0 }}</td>
+          </tr>
+          {% endif %}
+          {% if groups.Leadership %}
+          <tr>
+              <td>Leadership</td>
+              <td>{{ groups.Leadership.0 }}</td>
+          </tr>
+          {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
