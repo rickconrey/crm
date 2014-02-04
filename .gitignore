@@ -3,3 +3,7 @@ venv
 staticfiles
 heroku
 heroku.pub
+models.py.111713
+*.swp
+*.dump
+*.old

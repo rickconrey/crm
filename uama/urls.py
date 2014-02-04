@@ -14,5 +14,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^crm/', include('crm.urls')),
+    url(r'^login/$', 'django.contrib.auth.views.login', 
+        {'template_name':'crm/login.html',}),
     url(r'^admin/', include(admin.site.urls)),
 )

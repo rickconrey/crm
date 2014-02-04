@@ -15,7 +15,20 @@ src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script
 src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
-    {% block script %} {% endblock %}
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/static/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as
+        needed -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-top: 50px;
+            padding-bottom: 20px;
+        }
+    </style>
+
+    {% block css %} {% endblock %}
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -28,23 +41,23 @@ src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">UAMA</a>
+          <a class="navbar-brand" href="/crm/">UAMA</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
+            <li class="active"><a href="/crm/">Home</a></li>
+            <li><a href="/login/">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
+            <button id="search" data-toggle="popover"
+                data-placement="bottom"
+                class="btn btn-sm btn-danger pull-right"
+                rel="popover">Search<span class="caret"></span></button>
+        </div>
       </div>
     </div>
     {% block body %} {% endblock %}
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="/static/js/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as
-needed -->
-    <script src="/static/js/bootstrap.min.js"></script>
+    {% block script %}{% endblock %}
+    {% include "crm/search.html" %}
   </body>
 </html>

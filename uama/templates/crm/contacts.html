@@ -1,17 +1,29 @@
+{% if contacts %}
 <div class="col-md-5">
   <h3>Contact Information</h3>
+<div class="panel-group" id="contacts">
   {% for contact in contacts %}
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <b class="left">
-          {{ contact.contact }}
-        </b>
-        <b class="right">
+        <div class="panel-heading">
+        <a data-toggle="collapse" data-parent="#contacts"
+                href="#collapse-{{ contact.contact.id }}">
+          <b class="left">
+            {{ contact.contact }}
+          </b>
+        </a>
+        <b class="pull-right">
+          <a data-target="#relEdit-{{ contact.contact.id }}"
+             href="/crm/relup/{{ contact.contact.id }}"
+             data-toggle="modal">
           {{ contact.get_relationship_display }}
+          </a>
         </b>
         <div class="clear"></div>
-      </div>
+    </div>
+    <div id="collapse-{{ contact.contact.id }}" class="panel-collapse in">
+    <div class="panel-body">
       <table class="table">
+        {% if contact_phone.0 %}
         <tr>
           <td>Phone:</td>
           <td>
@@ -29,6 +41,8 @@
             </table>
           </td>
         </tr>
+        {% endif %}
+        {% if contact_email.0 %}
         <tr>
           <td>Email:</td>
           <td>
@@ -45,6 +59,8 @@
             </table>
           </td>
         </tr>
+        {% endif %}
+        {% if contact.contact.address1 %}
         <tr>
           <td>Address:</td>
           <td>{{ contact.contact.address1 }}</td>
@@ -61,21 +77,30 @@
           <td>Zip Code:</td>
           <td>{{ contact.contact.zipcode }}</td>
         </tr>
-      </table>
-    </div>
-  <!--<p><a class="btn btn-default" href="#" role="button">edit
-&raquo;</a></p>-->
-   <p>
-      <a data-target="#contactEdit"
-         class="btn btn-default"
+        {% endif %}
+        </table>
+   <p class="pull-right">
+      <a data-target="#contactEdit-{{ contact.contact.id }}"
+         class="btn btn-default btn-xs"
          href="/crm/contactup/{{ contact.contact.id }}"
          role="button"
          data-toggle="modal">edit &raquo;</a>
-    </p>
-  {% endfor %}
-</div>
-<div class="modal fade" id="contactEdit"
-     tabindex="-1" role="dialog" aria-hidden="true">
-  {% include "crm/modal_student.html" %}
+     </p>
+ </div>
+ </div>
+ </div>
+  
+    <div class="modal fade" id="contactEdit-{{ contact.contact.id }}"
+         tabindex="-1" role="dialog" aria-hidden="true">
+      {% include "crm/modal.html" %}
+    </div>
+
+    <div class="modal fade" id="relEdit-{{ contact.contact.id }}"
+         tabindex="-1" role"dialog" aria-hidden="true">
+      {% include "crm/modal.html" %}
+    </div>
 </div>
 
+  {% endfor %}
+</div>
+{% endif %}

@@ -45,7 +45,7 @@ class TipInline(admin.TabularInline):
     extra = 1
 
 class RelationshipInline(admin.TabularInline):
-    model = Student.contacts.through
+    model = Relationship
     extra = 1
 
 class SessionMemberInline(admin.TabularInline):

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
-from crm.views import StudentUpdate, ContactUpdate
-
+from crm.views import StudentUpdate, ContactUpdate, RelationshipUpdate
+from crm.views import Search, Scanner
 from crm import views
 
 urlpatterns = patterns('',
@@ -9,5 +9,10 @@ urlpatterns = patterns('',
         name='student_update'),
     url(r'^contactup/(?P<pk>\d+)/$', ContactUpdate.as_view(),
         name='contact_update'),
+    url(r'^relup/(?P<pk>\d+)/$', RelationshipUpdate.as_view(),
+        name='relationship_update'),
+    url(r'^search/$', Search.as_view(),
+        name='search_view'),
+    url(r'^scanner/$', Scanner.as_view(), name='scanner'),
     #url(r'^(?P<student_id>\d+)/$', views.view_student, name='view_student'),
 )

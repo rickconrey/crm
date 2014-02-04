@@ -1,3 +1,4 @@
+
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
@@ -8,8 +9,8 @@
     <div class="modal-body">
       <div class="panel panel-default">
         <table class="table table-condensed">
-          <form id="contact_edit" 
-                action="/crm/contactup/{{ student.id }}/"
+          <form id="contact-edit-{{ contactId }}" 
+                action="/crm/contactup/{{ contactId }}/"
                 method="post">
             {% csrf_token %}
             {{ form }}
@@ -21,14 +22,14 @@
         <button type="button" class="btn btn-default"
                 data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary"
-                id="save" data-dismiss="modal">Save</button>
+                id="save-contact-{{ contactId }}" data-dismiss="modal">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-  $("#save").click(function() {
-    $("#student-edit").submit();
+  $("#save-contact-{{ contactId }}").click(function() {
+    $("#contact-edit-{{ contactId }}").submit();
   });
 </script>
 

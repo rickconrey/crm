@@ -1,15 +1,16 @@
+
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
       <button type="button" class="close"
               data-dismiss="modal" aria-hidden="true">&times;</button>
-      <h4 class="modal-title">Student Edit</h4>
+      <h4 class="modal-title">Status Edit</h4>
     </div>
     <div class="modal-body">
       <div class="panel panel-default">
         <table class="table table-condensed">
-          <form id="student-edit-{{ studentId }}"
-                action="/crm/update/{{ studentId }}/"
+          <form id="status-edit" 
+                action="/crm/status/{{ contactId }}/"
                 method="post">
             {% csrf_token %}
             {{ form }}
@@ -21,28 +22,13 @@
         <button type="button" class="btn btn-default"
                 data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary"
-                id="save-student-{{ studentId }}" 
-                data-dismiss="modal">Save</button>
+                id="save-status" data-dismiss="modal">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-  $("#save-student-{{ studentId }}").click(function() {
-    $("#student-edit-{{ studentId }}").submit();
+  $("#save-status").click(function() {
+    $("#status-edit").submit();
   });
 </script>
-
-<!--
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="panel panel-default">
-          <table class="table">
-            {# {{ form }} #}
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
--->

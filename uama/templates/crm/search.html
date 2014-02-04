@@ -1,0 +1,32 @@
+{% load addcss %}
+<div id="popover-head" class="hide">Search</div>
+
+<div id="popover-content" class="hide">
+    <form class="form-horizontal" 
+        role="form" action="/crm/search/" method="get">
+        {% for field in student_form %}
+        <!--<div class="form-group">-->
+                {{ field.label_tag }}
+                {{ field|addcss:"form-control" }}
+            <!--</div>-->
+        {% endfor %}
+        <button type="submit" 
+            class="right btn btn-primary btn-sm form-control">Search</button>
+    </form>
+</div>
+
+{% block script %}
+
+<script>
+    $('#search').popover({
+        trigger: "click",
+        html: true,
+        title: function() {
+            return $("#popover-head").html();
+        },
+        content: function() {
+            return $("#popover-content").html();
+        }
+    });
+</script>
+                                                                                {% endblock %}

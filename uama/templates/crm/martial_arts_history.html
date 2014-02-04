@@ -19,8 +19,12 @@
         <td>{{ student.rank }}</td>
       </tr>
       <tr>
-        <td>Next Test Date:</td>
-        <td>{{ next_test_date.test_group.test_date }}</td>
+        <td>Last Test:</td>
+        <td>{{ last_test }}</td>
+      </tr>
+      <tr>
+        <td>Next Test:</td>
+        <td>{{ tipping_group }}</td>
       </tr>
       <tr>
         <td>Class:</td>
@@ -36,6 +40,16 @@
       </tr>
     </table>
   </div>
-  <p><a class="btn btn-default" href="#" role="button">edit &raquo;</a></p>
+  <p>
+<!--    <a data-target="#relEdit"
+       class="btn btn-default"
+       href="/crm/relup/{#{ contacts.0.id }#}"
+       role="button"
+       data-toggle="modal">edit &raquo;</a>
+  </p>
 </div>
-
+<div class="modal fade" id="relEdit"
+     tabindex="-1" role"dialog" aria-hidden="true">
+  {#% include "crm/modal.html" %#}
+-->
+</div>

@@ -1,5 +1,10 @@
 from django.db import models
 from datetime import date
+import barcode, os
+
+#PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
+PROJECT_PATH = os.getcwd()
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'uama/static')
 
 # Student and Contact info
 class CommonInfo(models.Model):
@@ -49,30 +54,29 @@ class Student(CommonInfo):
         (12, 'December'),
     )
     dob = models.DateField('Date of Birth')                                   #
-    start_date = models.DateField('Start Date', default=date.today())
+    start_date = models.DateField('Start Date')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES,
                               blank=True, null=True)
     uniform_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
-                                    default=0, blank=True)
+                                    blank=True)
     belt_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
-                                 default=0, blank=True)
+                                 blank=True)
     #status = models.ForeignKey('Status', default='INT')
     class_time = models.ForeignKey('Class', null=True, blank=True)
     # group = models.ManyToManyField(Group, through='') # change?
-    contacts = models.ManyToManyField('Contact', through='Relationship',
-                                      null=True)
+    #contacts = models.ManyToManyField('Contact', through='Relationship',
+    #                                  null=True)
     rank = models.ForeignKey('Rank', to_field='rank', 
-                             default='WB', null=True, blank=True,
+                             null=True, blank=True,
                              verbose_name="Current Rank")
     anniv_month = models.IntegerField(choices=ANNIV_MONTH_CHOICES,
-                                      default=date.today().month,
                                       blank=True)
     benefits = models.TextField(blank=True)
     limitations = models.TextField(blank=True)
     referral = models.ForeignKey('Student', blank=True, null=True)
     # hold_harmless = models.BooleanField(default=False)
-    total_years = models.IntegerField(default=0, blank=True, null=True)
-
+    total_years = models.IntegerField(blank=True, null=True)
+    
     def get_age(self):
         today = date.today()
         try:
@@ -94,18 +98,102 @@ class Student(CommonInfo):
         else:
             return "Sr"
     
+    def get_current_status(self):
+        # Return the current status of the student
+        status = StatusStudent.objects.filter(student=self).order_by(
+                    '-start_date')
+        if status.exists():
+            return status[0]
+
+        return None
+
     def get_last_test_date(self):
         #from test, filter by student, find the closest date to today
-        pass
+        today = date.today()
+        last_test = Test.objects.filter(student=self,
+                                        test_group__test_date__lte=today)
+        if last_test.exists():
+            return last_test[0]
+        return None
 
     def get_next_test_date(self):
-        #find last test date, add on amount of time for age/belt
+        # find last test date, add on amount of time for age/belt
         pass
 
+    def add_next_tipping(self):
+        # Check to see if there is a next tipping date, add if DNE
+        # return the added date or next date if already exists
+        next_tipping_date = self.get_next_tipping()
+
+        # next tipping date already exists, return with it
+        if next_tipping_date:
+            return next_tipping_date
+
+        # base variables
+        age = self.get_age()
+        rank = Rank.objects.get(rank=self.rank)
+        today = date.today()
+        month = today.month
+        year = today.year
+        last_test_date = self.get_last_test_date()
+    
+        # there was a previous test, base calculation on that date
+        if last_test_date:
+            ltd = last_test_date.test_date()
+            month = ltd.month
+            year = ltd.year
+
+        # rules to find next tip group
+        if age < 6:
+            tip_month = month + 3
+        elif age == 6:
+            tip_month = month + 2
+        elif age == 7:
+            tip_month = month + 3
+        elif age >= 8:
+            tip_month = month + 2
+        tip_year = year
+
+        # if the tip_month exceeds 12 increase the year
+        if tip_month > 12:
+            tip_month -= 12
+            tip_year += 1
+
+        # create next tipping
+        next_rank = Rank.objects.get(id=(rank.id+1))
+        tip_date = date(tip_year,tip_month,1)
+        tip_date_str = tip_date.strftime('%B') + ' ' + str(tip_date.year)
+        tipping_group = TippingGroup.objects.get(description=tip_date_str)
+        ts = TippingStudent(student=self,tipping_group=tipping_group,
+                            rank=next_rank)
+        ts.save()
+
+        return ts
+
     def update_total_years(self):
-        #if status is active and anniv_month is current month, add a year
+        # if status is active and anniv_month is current month, add a year
         # create list for year patches
         pass
+
+    def check_tips(self):
+        # check to see if there are enough tips to test
+        # return True or False
+        return False
+
+    def get_next_tipping(self):
+        # find when the student is tipping next
+        # return TippingStudent object or None
+        today = date.today()
+        next_tipping = TippingStudent.objects.filter(
+                                student=self,
+                                tipping_group__date__gte=today)
+        if next_tipping.exists():
+            return next_tipping[0]
+        return None
+
+    def is_in_testing_group(self, date):
+        pass
+        
 
     def get_days_since_last_test(self):
         last_test_date = self.get_last_test_date()
@@ -114,6 +202,68 @@ class Student(CommonInfo):
               attendance_date__gt=last_test_date
             )
         return attendance.count()
+
+    # Groups
+    def get_BBC(self):
+        return BBCGroup.objects.filter(student=self)
+
+    def get_MC(self):
+        return MCGroup.objects.filter(student=self)
+
+    def get_AAU(self):
+        return AAUGroup.objects.filter(student=self)
+
+    def get_instructor(self):
+        return InstructorGroup.objects.filter(student=self)
+
+    def get_leadership(self):
+        return LeadershipGroup.objects.filter(student=self)
+
+    def get_groups(self):
+        BBC = self.get_BBC()
+        MC = self.get_MC()
+        AAU = self.get_AAU()
+        Instructor = self.get_instructor()
+        Leadership = self.get_leadership()
+
+        groups = {}
+        if BBC.exists():
+            groups['BBC'] = BBC
+        if MC.exists():
+            groups['MC'] = MC
+        if AAU.exists():
+            groups['AAU'] = AAU
+        if Instructor.exists():
+            groups['Instructor'] = Instructor
+        if Leadership.exists():
+            groups['Leadership'] = Leadership
+        return groups
+
+    def generate_barcode(self, card_type):
+        codes = Barcode.objects.filter(student=self)
+        for code in codes:
+            if code.card_type == card_type:
+                return code.code
+
+        # prefix to tell which type of card we are creating
+        prefix = {1:'R',2:'C',3:'S',4:'L',5:'A'}
+
+        bcode_string = prefix[card_type] + \
+                self.first_name[:10] + self.last_name[:10] + \
+                "%05d" % self.id
+        bcode = barcode.get('code39',bcode_string)
+        filename = bcode.save(bcode.get_fullcode())
+
+        code = Barcode(student=self,code=bcode.get_fullcode(),
+            code_loc=filename)
+        code.save()
+
+        # move image to correct directory
+        loc = 'img/barcodes/' + filename
+        dst = os.path.join(STATIC_ROOT, loc)
+        os.rename(filename,dst)
+
+        return code.code
 
     #def save(self):
 
@@ -231,6 +381,24 @@ class HoldHarmlessStudent(models.Model):
     student = models.ForeignKey(Student)
     date = models.DateField(default=date.today())
 
+# Barcode $
+# Barcodes to make cards for regular class, SWAT/STORM, candidate, etc
+class Barcode(models.Model):
+    CARD_TYPE_CHOICES = (
+            (1,'Class'),
+            (2,'Candidate'),
+            (3,'SWAT'),
+            (4,'Leadership'),
+            (5,'AAU'),
+            )
+    student = models.ForeignKey(Student)
+    code = models.CharField(max_length=100,null=True, blank=True)
+    code_loc = models.CharField(max_length=100,null=True, blank=True)
+    card_type = models.IntegerField(choices=CARD_TYPE_CHOICES, default=1)
+
+    def __unicode__(self):
+        return self.code
+
 # Sessions/Seminar #
 # Fitness, Bo, Ground, Sparring, CPR, leadership, demo, etc
 class Session(models.Model):
@@ -301,7 +469,7 @@ class GroupJoin(models.Model):
 
 class BBCGroup(GroupJoin):
     goals = models.TextField(blank=True)
-    black_belt_group = models.DateField()
+    #black_belt_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
@@ -310,7 +478,7 @@ class BBCGroup(GroupJoin):
 
 class MCGroup(GroupJoin):
     goals = models.TextField(blank=True)
-    advanced_degree_group = models.DateField()
+    #advanced_degree_group = models.DateField()
     rate = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
@@ -319,7 +487,7 @@ class MCGroup(GroupJoin):
 
 class AAUGroup(GroupJoin):
     aau_rank = models.ForeignKey('AAURank')
-    aau_group = models.DateField()
+    #aau_group = models.DateField()
 
     class Meta:
         verbose_name = "AAU Group"
@@ -333,11 +501,11 @@ class InstructorGroup(GroupJoin):
         ('BKJN', 'BuKwanJangNim'),
         ('KJN', 'KwanJangNim'),
     )
-    instructor_rank = models.CharField(max_length=4,
-                                       choices=INSTRUCTOR_RANK_CHOICES,
-                                       default='CGN')
+    #instructor_rank = models.CharField(max_length=4,
+    #                                   choices=INSTRUCTOR_RANK_CHOICES,
+    #                                   default='CGN')
     def __unicode__(self):
-        return self.instructor_rank + ' ' + self.student.first_name \
+        return self.student.first_name \
                 + ' ' + self.student.last_name
 
 class LeadershipGroup(GroupJoin):
@@ -348,11 +516,11 @@ class LeadershipGroup(GroupJoin):
         ('G', 'Graduate'),
     )
 
-    leadership_level = models.CharField(max_length=1,
-                                        choices=LEADERSHIP_LEVEL_CHOICES,
-                                        default='1')
+    #leadership_level = models.CharField(max_length=1,
+    #                                    choices=LEADERSHIP_LEVEL_CHOICES,
+    #                                    default='1')
     def __unicode__(self):
-        return self.leadership_level + ' ' + self.student.first_name \
+        return self.student.first_name \
                 + ' ' + self.student.last_name
 
 # Status #
@@ -497,6 +665,9 @@ class Rank(models.Model):
     #                        default='WB', unique=True)
     rank = models.CharField(max_length=60, unique=True)
 
+    def get_next_rank(self):
+        pass
+
     def __unicode__(self):
         return self.rank
 
@@ -533,7 +704,7 @@ class TestGroup(models.Model):
         ('K','MakeUp Test'),
         ('O','Other'),
     )
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, unique=True)
     test_type = models.CharField(max_length=1, choices=TEST_TYPE,
                                  default='M')
     test_date = models.DateField()
@@ -551,6 +722,9 @@ class Test(models.Model):
     # notes = models.TextField() -- do i need this if it is included in score?
     average = models.DecimalField(max_digits=4,decimal_places=2,
                                   blank=True, null=True)
+
+    def __unicode__(self):
+        return self.test_group.description + ' - ' + self.test_rank.rank
 
 class TestScore(models.Model):
     test = models.ForeignKey(Test)
@@ -571,7 +745,7 @@ class RTGroup(models.Model):
         verbose_name_plural = "RT Groups"
 
 class TippingGroup(models.Model):
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, unique=True)
     date = models.DateField()
     
     def __unicode__(self):
@@ -585,8 +759,6 @@ class TippingStudent(models.Model):
 
     def __unicode__(self):
         return self.tipping_group.description + ' - ' + \
-                self.student.first_name + ' ' + \
-                self.student.last_name + ' - ' + \
                 self.rank.rank
 
 class Tip(models.Model):
@@ -627,6 +799,7 @@ class Attendance(models.Model):
     attendance_type = models.CharField(max_length=1,
                                        choices=ATTENDANCE_CHOICES)
     attendance_date = models.DateField(default=date.today())
+    attendance_time = models.TimeField(auto_now_add=True)
     student = models.ForeignKey(Student)
 
     class Meta:
