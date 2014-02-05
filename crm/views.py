@@ -5,14 +5,14 @@ from django.views.generic.edit import UpdateView, ModelFormMixin
 from django.views.generic import ListView, View
 from django.forms.models import modelform_factory, modelformset_factory
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 from crm.models import Student, Contact, Relationship
 from crm.models import ContactEmail, ContactPhone
 from crm.models import StudentEmail, StudentPhone
 from crm.models import StatusStudent, Attendance
 from crm.models import Test, TestScore, Tip, TippingGroup
 from crm.models import TippingStudent, Barcode
-from datetime import date, time
-import datetime
+from datetime import date, time, datetime
 
 # utilities
 
@@ -185,16 +185,17 @@ class Scanner(View):
 
         # has the student been scanned in the last hour?
         attendance = Attendance.objects.filter(student=student_code.student,
-                attendance_date=date.today(), attendance_type=atype)
+                attendance_date=date.today(), attendance_type=atype).order_by(
+                        '-attendance_date')
         if attendance:
-            old_time = time(attendance.attendance_time)
+            old_time = attendance[0].attendance_time
             adjusted_time = time(old_time.hour + 1, old_time.minute,
                     old_time.second, old_time.microsecond)
-            new_time = datetime.datetime.now().time()
+            new_time = datetime.now().time()
             
             if new_time < adjusted_time:
-                status = 'Already scanned.'
-                context = {"atype":atype, "status":status}
+                messages.info(request, 'Already scanned.')
+                context = {"atype":atype}
                 return render(request, self.template_name, context)
 
         # save the latest attendance
@@ -202,7 +203,7 @@ class Scanner(View):
                 attendance_date=date.today(), attendance_type=atype)
 
         attendance.save()
-        status = attendance.student + ' added.'
-        context = {"code":code, "student_code":student_code, 'status':status}
+        messages.success(request, attendance.student.first_name + ' added.')
+        context = {"code":code, "student_code":student_code}
         return render(request, self.template_name, context)
 

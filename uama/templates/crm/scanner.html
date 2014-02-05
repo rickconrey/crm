@@ -4,10 +4,14 @@
 
 {% block body %}
 <div class="container">
+    {% include "crm/messages.html" %}
     <h1>Attendance Scanner</h1>
     <div class="row">
         <div class="col-md-8">
             <div class="panel panel-default">
+                {% if status %}
+                <p>{{ status }}</p>
+                {% endif %}
                 {% if code %}
                   <p>{{code}}</p>
                 {% endif %}
@@ -23,7 +27,23 @@
                         <input type="text" class="form-control"
                           id="code" name="code" placeholder="Enter barcode">
                     </div>
-                    <button type="submit" class="btn btn-default">Submit
+                    <div class="form-group">
+                        <label for="atype">Type</label>
+                        <select class="form-control" id="atype"
+                            name="atype">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">Candidate</option>
+                            <option value="S">Saturday</option>
+                            <option value="U">AAU</option>
+                            <option value="T">Test</option>
+                            <option value="W">SWAT</option>
+                            <option value="L">Leadership</option>
+                            <option value="P">Private</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        Submit
                     </button>
                 </form>
             </div>
