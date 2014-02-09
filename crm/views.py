@@ -184,7 +184,7 @@ class Search(ListView):
             context = {'results':results}
             return render_view(request, 'crm/search_list.html',context)
 
-        context = {"search_form":get_search_form()}
+        context = {"adv_search_form":get_search_form()}
 
         return render_view(request, self.template_name, context)
 

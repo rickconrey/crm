@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% load addcss %}
+
+{% block title %}Advanced Search{% endblock %}
+
 {% block body %}
 <div class="container">
     <div class="row">
@@ -7,7 +10,7 @@
             <form class="form-horizontal input-sm" 
                 role="form" action="/crm/search/" method="post">
                 {% csrf_token %}
-                {% for form in search_form %}
+                {% for form in adv_search_form %}
                 <div class="col-sm-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
