@@ -12,6 +12,9 @@ from crm.models import StudentEmail, StudentPhone
 from crm.models import StatusStudent, Attendance
 from crm.models import Test, TestScore, Tip, TippingGroup
 from crm.models import TippingStudent, Barcode
+from crm.forms import StudentForm, StatusForm, BBCGroupForm
+from crm.forms import MCGroupForm, InstructorGroupForm, LeadershipGroupForm
+from crm.forms import AAUGroupForm, BasicSearchForm
 from datetime import date, time, datetime
 
 # utilities
@@ -21,6 +24,26 @@ def get_path_id(path_list):
     for item in path_list:
         if item.isdigit():
             return item
+
+def get_search_form():
+    search_form = []
+    search_form.append({'student':StudentForm(prefix="student"),
+        'status':StatusForm(prefix="status")})
+    search_form.append({'bbc':BBCGroupForm(prefix="BBC"),
+        'mc':MCGroupForm(prefix="MC"),
+        'instructor':InstructorGroupForm(prefix="Instructor"),
+        'leadership':LeadershipGroupForm(prefix="Leadership"),
+        'aau':AAUGroupForm(prefix="AAU"),})
+
+    return search_form
+
+
+def render_view(request, template, context):
+    search_form = {}
+    search_form['basic_search'] = BasicSearchForm()
+    context['search_form'] = search_form
+    return render(request, template, context)
+
 
 def listing(request, student_id):
     student_list = Student.objects.all()
@@ -37,11 +60,11 @@ def listing(request, student_id):
     results = view_student(student_page.number)
     results['student_page'] = student_page
 
-    return render(request, 'crm/view.html', results)
+    return render_view(request, 'crm/view.html', results)
 
 
 def scanner(request):
-    return render(request, 'crm/scanner.html',)
+    return render_view(request, 'crm/scanner.html',)
 
 def view_student(student_id):#request, student):#student_id):
     try:
@@ -75,12 +98,9 @@ def view_student(student_id):#request, student):#student_id):
         # not correct...
         #next_test_date = Test.objects.filter(student=student).order_by(
         #                                    '-test_group')[0]
-        StudentForm = modelform_factory(Student,
-              #  exclude=("limitations","benefits","state","city","zipcode",
-              #      'address1','address2'))
-                fields=("first_name", "last_name", "gender",
-                    "anniv_month", "rank", "total_years"))
-        print StudentForm.as_table
+        #search_form = {}
+        #search_form['basic_search'] = BasicSearchForm()
+
     except Student.DoesNotExist:
         raise Http404
 
@@ -92,22 +112,10 @@ def view_student(student_id):#request, student):#student_id):
                     'student_phone':student_phone,
                     'tipping_group':tipping_group, 'last_test':last_test,
                     'current_status':current_status, 'add_tipping':add_tipping,
-                    'groups':groups, 'student_form':StudentForm, 'code':code,
+                    'groups':groups, 'code':code,
                     }
 
     return student_info
-
-    #return render(request, 'crm/view.html', {'student':student,
-    #                                         'age':age,
-    #                                         'classification':classification,
-    #                                         'contacts':contacts,
-    #                                         'contact_phone':contact_phone,
-    #                                         'contact_email':contact_email,
-    #                                         'status':status,
-    #                                         'attendance':attendance,
-    #                                         #'next_test_date':next_test_date,
-    #                                         })
-
 
 class StudentUpdate(UpdateView):
     model = Student
@@ -156,10 +164,9 @@ class RelationshipUpdate(UpdateView):
 
 class Search(ListView):
     model = Student
-    template_name = 'crm/search_list.html'
+    #template_name = 'crm/search_list.html'
+    template_name = 'crm/search_adv.html'
 
-    #def get(self, request, *args, **kwargs):
-    #    pass
     def get_queryset(self):
         request = self.request
         kwargs = {}
@@ -167,6 +174,88 @@ class Search(ListView):
             if request.GET.get(key) is not u'':
                 kwargs[key] = request.GET.get(key)
         return  Student.objects.filter(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        last_name = u''
+        if request.GET.get('last_name'):
+            last_name = request.GET.get('last_name')
+        if last_name is not u'':
+            results = Student.objects.filter(last_name__istartswith=last_name)
+            context = {'results':results}
+            return render_view(request, 'crm/search_list.html',context)
+
+        context = {"search_form":get_search_form()}
+
+        return render_view(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        student = StudentForm(request.POST, prefix='student')
+        student.is_valid()
+        status = StatusForm(request.POST, prefix='status')
+        status.is_valid()
+        groups = []
+        groups.append(BBCGroupForm(request.POST, prefix='BBC'))
+        groups.append(AAUGroupForm(request.POST, prefix='AAU'))
+        groups.append(MCGroupForm(request.POST, prefix='MC'))
+        groups.append(LeadershipGroupForm(request.POST, prefix='Leadership'))
+        groups.append(InstructorGroupForm(request.POST, prefix='Instructor'))
+
+        # validate group data
+        valid_groups = []
+        for group in groups:
+            group.is_valid()
+            if group.cleaned_data:
+                valid_groups.append(group.cleaned_data)
+
+        # find students based on fields
+        data = student.cleaned_data
+        lst = []
+        for key in data:
+            if data[key] == '' or data[key] is None:
+                lst.append(key)
+
+        for l in lst:
+            data.pop(l)
+
+        fname = data.pop('first_name', '')
+        lname = data.pop('last_name', '')
+
+        students = Student.objects.filter(
+                first_name__istartswith=fname).filter(
+                        last_name__istartswith=lname).filter(**data)
+
+        # select only those students that are in searched for groups
+        remove = []
+        for group in valid_groups:
+            for key in group.keys():
+                for s in students:
+                    student_groups = s.get_groups()
+                    if key in student_groups.keys():
+                        if int(group[key]) == student_groups[
+                                key][0].group.id:
+                            continue
+                    if s not in remove:
+                        remove.append(s)
+
+        # check status
+        if status.cleaned_data:
+            for s in students:
+                student_status = s.get_current_status()
+                if student_status and str(
+                        student_status.status) == str(
+                                status.cleaned_data['status'].status):
+                    continue
+                if s not in remove:
+                    remove.append(s)
+
+        results = list(students)
+        for item in remove:
+            results.remove(item)
+
+        context = {'results':results}
+
+        return render_view(request, 'crm/search_list.html', context)
+
 
 class Scanner(View):
     template_name = 'crm/scanner.html'
@@ -196,7 +285,7 @@ class Scanner(View):
             if new_time < adjusted_time:
                 messages.info(request, 'Already scanned.')
                 context = {"atype":atype}
-                return render(request, self.template_name, context)
+                return render_view(request, self.template_name, context)
 
         # save the latest attendance
         attendance = Attendance(student=student_code.student,
@@ -205,5 +294,5 @@ class Scanner(View):
         attendance.save()
         messages.success(request, attendance.student.first_name + ' added.')
         context = {"code":code, "student_code":student_code}
-        return render(request, self.template_name, context)
+        return render_view(request, self.template_name, context)
 
