@@ -3,6 +3,9 @@ from crm.models import Student, StatusStudent, Group
 from crm.models import GroupCategory
 
 # Define forms for searching
+class BasicSearchForm(forms.Form):
+    last_name = forms.CharField(label='Last name')
+
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
