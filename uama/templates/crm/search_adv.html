@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load addcss %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            <form class="form-horizontal input-sm" 
+                role="form" action="/crm/search/" method="post">
+                {% csrf_token %}
+                {% for form in search_form %}
+                <div class="col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        {% if not forloop.last %}
+                        Student
+                        {% else %}
+                        Group
+                        {% endif %}
+                    </div>
+                    <div class="panel-body">
+                        {% for key, value in form.items %}
+                {% for field in value %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" 
+                        class="col-sm-5 control-label">
+                        {{ field.label }}
+                    </label>
+                    <div class="col-sm-7">
+                        {{ field|addcss:"form-control input-sm" }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+                    </div>
+                </div>
+            </div>
+                {% endfor %}
+                <button type="submit" 
+                    class="right btn btn-primary btn-sm form-control">Search
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
