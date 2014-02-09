@@ -5,36 +5,36 @@
   <div class="panel panel-default">
     <table class="table table-striped">
         <tbody>
-          {% if groups.AAU %}
+          {% if groups.aau_group %}
           <tr>
               <td>AAU</td>
-              <td>{{ groups.AAU.0 }}</td>
+              <td>{{ groups.aau_group.0 }}</td>
           </tr>
           {% endif %}
-          {% if groups.BBC %}
+          {% if groups.bbc_group %}
           <tr>
               <td>BBC</td>
               <td> 
-                  {{ groups.BBC.0.group }}
+                  {{ groups.bbc_group.0.group }}
               </td>
           </tr>
           {% endif %}
-          {% if groups.MC %}
+          {% if groups.mc_group %}
           <tr>
               <td>MC</td>
-              <td>{{ groups.MC.0.group }}</td>
+              <td>{{ groups.mc_group.0.group }}</td>
           </tr>
           {% endif %}
-          {% if groups.Instructor %}
+          {% if groups.instructor_group %}
           <tr>
               <td>Instructor</td>
-              <td>{{ groups.Instructor.0 }}</td>
+              <td>{{ groups.instructor_group.0 }}</td>
           </tr>
           {% endif %}
-          {% if groups.Leadership %}
+          {% if groups.leadership_group %}
           <tr>
               <td>Leadership</td>
-              <td>{{ groups.Leadership.0 }}</td>
+              <td>{{ groups.leadership_group.0 }}</td>
           </tr>
           {% endif %}
       </tbody>
