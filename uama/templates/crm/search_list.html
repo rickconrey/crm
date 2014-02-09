@@ -7,8 +7,10 @@
         <div class="col-md-8">
             <div class="panel panel-default">
                 <ul class="list-group">
-                    {% for student in object_list %}
-                    <li class="list-group-item">{{ student }}</li>
+                    {% for student in results %}
+                    <li class="list-group-item">
+                        <a href="/crm/{{ student.id }}">{{ student }}</a>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>

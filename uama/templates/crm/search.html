@@ -2,17 +2,22 @@
 <div id="popover-head" class="hide">Search</div>
 
 <div id="popover-content" class="hide">
-    <form class="form-horizontal" 
-        role="form" action="/crm/search/" method="get">
-        {% for field in student_form %}
-        <!--<div class="form-group">-->
-                {{ field.label_tag }}
+    <form role="form" action="/crm/search/" method="get">
+        {% for key, value in search_form.items %}
+            {% for field in value %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}"
+                    class="control-label">
+                    {{ field.label }}
+                </label>
                 {{ field|addcss:"form-control" }}
-            <!--</div>-->
+            </div>
+            {% endfor %}
         {% endfor %}
         <button type="submit" 
-            class="right btn btn-primary btn-sm form-control">Search</button>
+            class="btn btn-primary btn-sm">Search</button>
     </form>
+    <a href="/crm/search/" class="pull-right">Advanced...</a>
 </div>
 
 {% block script %}
