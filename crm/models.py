@@ -61,11 +61,7 @@ class Student(CommonInfo):
                                     blank=True)
     belt_size = models.CharField(max_length=3, choices=SIZE_CHOICES,
                                  blank=True)
-    #status = models.ForeignKey('Status', default='INT')
     class_time = models.ForeignKey('Class', null=True, blank=True)
-    # group = models.ManyToManyField(Group, through='') # change?
-    #contacts = models.ManyToManyField('Contact', through='Relationship',
-    #                                  null=True)
     rank = models.ForeignKey('Rank', to_field='rank', 
                              null=True, blank=True,
                              verbose_name="Current Rank")
@@ -74,7 +70,6 @@ class Student(CommonInfo):
     benefits = models.TextField(blank=True)
     limitations = models.TextField(blank=True)
     referral = models.ForeignKey('Student', blank=True, null=True)
-    # hold_harmless = models.BooleanField(default=False)
     total_years = models.IntegerField(blank=True, null=True)
     
     def get_age(self):
@@ -228,15 +223,15 @@ class Student(CommonInfo):
 
         groups = {}
         if BBC.exists():
-            groups['BBC'] = BBC
+            groups['bbc_group'] = BBC
         if MC.exists():
-            groups['MC'] = MC
+            groups['mc_group'] = MC
         if AAU.exists():
-            groups['AAU'] = AAU
+            groups['aau_group'] = AAU
         if Instructor.exists():
-            groups['Instructor'] = Instructor
+            groups['instructor_group'] = Instructor
         if Leadership.exists():
-            groups['Leadership'] = Leadership
+            groups['leadership_group'] = Leadership
         return groups
 
     def generate_barcode(self, card_type):
@@ -535,10 +530,6 @@ class Status(models.Model):
         ('STF', 'Staff'),
         ('ARC', 'Archived'),
     )
-    #status = models.CharField(max_length=3, 
-    #                          choices=STATUS_CHOICES, 
-    #                          default='ACT',
-    #                          unique=True)
     status = models.CharField(max_length=20,
                               unique=True)
 
