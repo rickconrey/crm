@@ -49,12 +49,22 @@ src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
             <li><a href="/login/">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
-            <button id="search" data-toggle="popover"
-                data-placement="bottom"
-                class="btn btn-sm btn-danger pull-right"
-                rel="popover">Search<span class="caret"></span></button>
+          <ul class="nav navbar-nav navbar-right">
+              {% if user.is_authenticated %}
+              <li>
+                 <a href="/logout/">{{ user.username }} |
+                     <span class="badge">logout</span>
+                  </a> 
+              </li>
+              {% endif %}
+                  <button id="search" data-toggle="popover"
+                      data-placement="bottom"
+                      class="btn btn-sm navbar-btn btn-danger pull-right"
+                      rel="popover">Search <span class="caret"></span>
+                  </button>
+              </ul>
+              </div>
         </div>
-      </div>
     </div>
     {% block body %} {% endblock %}
     {% block script %}{% endblock %}

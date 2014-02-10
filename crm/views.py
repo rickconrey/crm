@@ -1,5 +1,6 @@
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.edit import UpdateView, ModelFormMixin
 from django.views.generic import ListView, View
@@ -44,7 +45,7 @@ def render_view(request, template, context):
     context['search_form'] = search_form
     return render(request, template, context)
 
-
+@login_required(login_url='/login')
 def listing(request, student_id):
     student_list = Student.objects.all()
     paginator = Paginator(student_list, 1)
@@ -63,8 +64,8 @@ def listing(request, student_id):
     return render_view(request, 'crm/view.html', results)
 
 
-def scanner(request):
-    return render_view(request, 'crm/scanner.html',)
+#def scanner(request):
+#    return render_view(request, 'crm/scanner.html',)
 
 def view_student(student_id):#request, student):#student_id):
     try:

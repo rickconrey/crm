@@ -16,5 +16,7 @@ urlpatterns = patterns('',
     url(r'^crm/', include('crm.urls')),
     url(r'^login/$', 'django.contrib.auth.views.login', 
         {'template_name':'crm/login.html',}),
+    url(r'^logout/$', 'django.contrib.auth.views.logout',
+        {'next_page':'/login/',}),
     url(r'^admin/', include(admin.site.urls)),
 )
