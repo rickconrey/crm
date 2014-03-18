@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models import Q
 from datetime import date
-import barcode, os
+
+import barcode, os, datetime
 
 #PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 PROJECT_PATH = os.getcwd()
@@ -108,8 +110,8 @@ class Student(CommonInfo):
         last_test = Test.objects.filter(student=self,
                                         test_group__test_date__lte=today)
         if last_test.exists():
-            return last_test[0]
-        return None
+            return last_test[0].test_group.test_date
+        return self.start_date
 
     def get_next_test_date(self):
         # find last test date, add on amount of time for age/belt
@@ -134,7 +136,7 @@ class Student(CommonInfo):
     
         # there was a previous test, base calculation on that date
         if last_test_date:
-            ltd = last_test_date.test_date()
+            ltd = last_test_date.test_date()  # bug?
             month = ltd.month
             year = ltd.year
 
@@ -195,7 +197,7 @@ class Student(CommonInfo):
         attendance = Attendance.objects.filter(student=self
             ).filter(
               attendance_date__gt=last_test_date
-            )
+            ).filter(Q(attendance_type='A') | Q(attendance_type='B'))
         return attendance.count()
 
     # Groups
@@ -542,7 +544,7 @@ class Status(models.Model):
 class StatusStudent(models.Model):
     student = models.ForeignKey(Student)
     status = models.ForeignKey(Status)
-    start_date = models.DateField()
+    start_date = models.DateField(default=datetime.datetime.now)
     end_date = models.DateField(null=True, blank=True)
     rate = models.DecimalField(max_digits=8, decimal_places=2,
                                null=True, blank=True)
