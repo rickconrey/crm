@@ -18,7 +18,90 @@ from crm.forms import MCGroupForm, InstructorGroupForm, LeadershipGroupForm
 from crm.forms import AAUGroupForm, BasicSearchForm
 from datetime import date, time, datetime
 
+#import .. convert  # utilities to change from xml to json
+
 # utilities
+
+def import_from_xml(data):
+    student_data = data['student'].copy()
+    contact_data = list(data['contacts'])
+    status_data = data['status'].copy()
+    phone_data = data['phone'].copy()
+
+    try:
+        s = Student.objects.get(first_name=student_data['first_name'], 
+                last_name=student_data['last_name'])
+    except ObjectDoesNotExist: 
+        rank = Rank.objects.get(id=student_data['rank'])
+        del student_data['rank']
+        s = Student(**student_data)
+        s.rank = rank
+        try:
+            s.save()
+        except e:
+            print e
+
+    status_id = Status.objects.get(id=status_data)
+    try:
+        status = StatusStudent.objects.get(student=s,status=status_id)
+    except ObjectDoesNotExist:
+        status = StatusStudent(student=s,status=status_id)
+        try:
+            status.save()
+        except e:
+            print e
+
+    contacts = []
+    for c in contact_data:
+        if 'relationship' in c:
+            relationship = c['relationship'][0]
+        else:
+            relationship = u'O'
+        try:
+            contact = Contact.objects.get(first_name=c['first_name'],
+                last_name=c['last_name'])
+        except ObjectDoesNotExist:
+            if 'relationship' in c:
+                del c['relationship']
+            contact = Contact(**c)
+            try:
+                contact.save()
+            except e:
+                print e
+
+        try:
+            r = Relationship.objects.get(student_id=s.id, contact_id=contact.id)
+        except ObjectDoesNotExist:
+            r = Relationship(student_id=s.id, contact_id=contact.id,
+                    relationship=relationship)
+            try:
+                r.save()
+            except e:
+                print e
+        
+        if 'home' in phone_data:
+            try:
+                p = ContactPhone.objects.get(phone=phone_data['home'], contact=contact)
+            except ObjectDoesNotExist:
+                p = ContactPhone(phone=phone_data['home'], phone_type='H',
+                        contact=contact)
+                try:
+                    p.save()
+                except e:
+                    print e
+
+        if 'work' in phone_data:
+            try:
+                p = ContactPhone.objects.get(phone=phone_data['work'], contact=contact)
+            except ObjectDoesNotExist:
+                p = ContactPhone(phone=phone_data['work'], phone_type='W',
+                        contact=contact)
+                try:
+                    p.save()
+                except e:
+                    print p
+
+
 
 # get path
 def get_path_id(path_list):
@@ -74,9 +157,9 @@ def view_student(student_id):#request, student):#student_id):
         classification = student.get_classification()
         contacts = Relationship.objects.filter(student=student)
         tipping_group = student.get_next_tipping()       
-        last_test = student.get_last_test_date()
+        #last_test = student.get_last_test_date()
         current_status = student.get_current_status()
-        add_tipping = student.add_next_tipping()
+        #add_tipping = student.add_next_tipping()
         groups = student.get_groups()
 
         contact_email = []
@@ -95,6 +178,7 @@ def view_student(student_id):#request, student):#student_id):
         attendance = Attendance.objects.filter(
                                         student=student).order_by(
                                              '-attendance_date')[:5]
+        number_days = student.get_days_since_last_test()
         code = student.generate_barcode(1)
         # not correct...
         #next_test_date = Test.objects.filter(student=student).order_by(
@@ -111,9 +195,9 @@ def view_student(student_id):#request, student):#student_id):
                     'contact_email':contact_email, 'attendance':attendance,
                     'student_email':student_email, 
                     'student_phone':student_phone,
-                    'tipping_group':tipping_group, 'last_test':last_test,
-                    'current_status':current_status, 'add_tipping':add_tipping,
-                    'groups':groups, 'code':code,
+                    'tipping_group':tipping_group, #'last_test':last_test,
+                    'current_status':current_status, #'add_tipping':add_tipping,
+                    'groups':groups, 'code':code, 'number_days':number_days,
                     }
 
     return student_info
