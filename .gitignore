@@ -7,3 +7,4 @@ models.py.111713
 *.swp
 *.dump
 *.old
+*.svg
