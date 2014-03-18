@@ -17,5 +17,6 @@ urlpatterns = patterns('',
         name='relationship_update'),
     url(r'^search/$', login_required(Search.as_view(),login_url='/login/'),
         name='search_view'),
-    url(r'^scanner/$', Scanner.as_view(), name='scanner'),
+    url(r'^scanner/$', login_required(Scanner.as_view(), login_url='/login/'),
+        name='scanner'),
 )
